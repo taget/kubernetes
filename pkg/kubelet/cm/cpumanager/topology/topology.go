@@ -39,6 +39,14 @@ type CPUTopology struct {
 	CPUDetails CPUDetails
 }
 
+type LLCDetails map[int]cpuset.CPUSet
+
+type LLCTopology struct {
+    NumLLCs int
+    NumWays int
+    LLCDetails LLCDetails
+}
+
 // CPUsPerCore returns the number of logical CPUs are associated with
 // each core.
 func (topo *CPUTopology) CPUsPerCore() int {
@@ -137,6 +145,17 @@ func (d CPUDetails) CPUsInCore(id int) cpuset.CPUSet {
 		}
 	}
 	return b.Result()
+}
+
+
+func DiscoverLLC() (*LLCTopology, error){
+    LLCDetails := LLCDetails{}
+    // TODO get LLC from RMD lib
+    return &LLCTopology{
+        NumLLCs: 2,
+        NumWays: 20,
+        LLCDetails: LLCDetails,
+    }, nil
 }
 
 // Discover returns CPUTopology based on cadvisor node info

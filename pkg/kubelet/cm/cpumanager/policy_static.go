@@ -75,6 +75,12 @@ type staticPolicy struct {
 	topology *topology.CPUTopology
 	// set of CPUs that is not available for exclusive assignment
 	reserved cpuset.CPUSet
+    //
+    llctopology *topology.LLCTopology
+    // TODO reserved cache ways
+    // should come from options e.g 0=1;1=1 or 0=c0000
+    // or a number of ways, these are for default reserved
+    //
 }
 
 // Ensure staticPolicy implements Policy interface
@@ -83,7 +89,7 @@ var _ Policy = &staticPolicy{}
 // NewStaticPolicy returns a CPU manager policy that does not change CPU
 // assignments for exclusively pinned guaranteed containers after the main
 // container process starts.
-func NewStaticPolicy(topology *topology.CPUTopology, numReservedCPUs int) Policy {
+func NewStaticPolicy(topology *topology.CPUTopology, numReservedCPUs int, llctopo *topology.LLCTopology) Policy {
 	allCPUs := topology.CPUDetails.CPUs()
 	// takeByTopology allocates CPUs associated with low-numbered cores from
 	// allCPUs.
@@ -101,6 +107,7 @@ func NewStaticPolicy(topology *topology.CPUTopology, numReservedCPUs int) Policy
 	return &staticPolicy{
 		topology: topology,
 		reserved: reserved,
+        llctopology: llctopo,
 	}
 }
 

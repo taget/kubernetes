@@ -138,7 +138,12 @@ func NewManager(
 		// exclusively allocated.
 		reservedCPUsFloat := float64(reservedCPUs.MilliValue()) / 1000
 		numReservedCPUs := int(math.Ceil(reservedCPUsFloat))
-		policy = NewStaticPolicy(topo, numReservedCPUs)
+
+        // TODO jimmy
+        llctopo, _ := topology.DiscoverLLC()
+
+        glog.Infof("[cpumanager][jimmy] topo: [%v]", llctopo)
+		policy = NewStaticPolicy(topo, numReservedCPUs, llctopo)
 
 	default:
 		glog.Errorf("[cpumanager] Unknown policy \"%s\", falling back to default policy \"%s\"", cpuPolicyName, PolicyNone)
@@ -225,10 +230,13 @@ func (m *manager) reconcileState() (success []reconciledContainer, failure []rec
 	failure = []reconciledContainer{}
 
 	for _, pod := range m.activePods() {
+
+	    glog.Warningf("[cpumanager] ijimmmmmmmy  %s", pod.Name)
 		allContainers := pod.Spec.InitContainers
 		allContainers = append(allContainers, pod.Spec.Containers...)
 		for _, container := range allContainers {
 			status, ok := m.podStatusProvider.GetPodStatus(pod.UID)
+	        glog.Warningf("[cpumanager] ijimmmmmmmy  %v", status)
 			if !ok {
 				glog.Warningf("[cpumanager] reconcileState: skipping pod; status not found (pod: %s, container: %s)", pod.Name, container.Name)
 				failure = append(failure, reconciledContainer{pod.Name, container.Name, ""})
